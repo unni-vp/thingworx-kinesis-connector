@@ -1,0 +1,28 @@
+server:
+   port: 8089
+
+cloud.aws:
+   credentials:
+      access-key: <AWS Access Key>
+      secret-key: <Secret Key>
+   region.static: ap-south-1
+   stack.auto: false
+
+spring.cloud.stream.bindings.input:
+   destination: <Kinesis Data stream name>
+   group: twx-telemetry-group
+   content-type: application/json
+
+thingworx:
+   host: <thingworx host name>
+   port: <thingworx host port>
+   appKey: <thingworx application key>
+   timeout: 30000
+   telemetryThing: TelemetryProcessor
+   telemetryService: processTelemetry
+   telemetryFrequency: 1000
+   healthThing: TelemetryProcessor
+   healthService: healthCheck
+   healthFrequency: 60000
+   connectorCount: 10
+   secureConnection: false
