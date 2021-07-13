@@ -14,15 +14,14 @@ spring.cloud.stream.bindings.input:
    content-type: application/json
 
 thingworx:
+   connectorCount: 10
    host: <thingworx host name>
    port: <thingworx host port>
+   secureConnection: false
    appKey: <thingworx application key>
    timeout: 30000
    telemetryThing: TelemetryProcessor
    telemetryService: processTelemetry
-   telemetryFrequency: 1000
    healthThing: TelemetryProcessor
    healthService: healthCheck
    healthFrequency: 60000
-   connectorCount: 10
-   secureConnection: false
