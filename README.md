@@ -31,3 +31,5 @@ Run the spring-boot application:
 ```bash
 mvn spring-boot:run
 ```
+
+**Note :** A sample ThingWorx entity can be found in the 'entities' folder. The 'Thing' entity has sample services for telemetry processing and health check.
