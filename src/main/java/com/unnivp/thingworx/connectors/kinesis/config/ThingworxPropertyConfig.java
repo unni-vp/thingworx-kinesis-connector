@@ -29,8 +29,6 @@ public class ThingworxPropertyConfig {
 
 	private String telemetryService;
 
-	private int telemetryFrequency;
-
 	private String healthThing;
 
 	private String healthService;
@@ -87,14 +85,6 @@ public class ThingworxPropertyConfig {
 
 	public void setTelemetryService(String telemetryService) {
 		this.telemetryService = telemetryService;
-	}
-
-	public int getTelemetryFrequency() {
-		return telemetryFrequency;
-	}
-
-	public void setTelemetryFrequency(int telemetryFrequency) {
-		this.telemetryFrequency = telemetryFrequency;
 	}
 
 	public String getHealthThing() {

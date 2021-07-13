@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import com.unnivp.thingworx.connectors.kinesis.consumer.KinesisMessageSink;
-import com.unnivp.thingworx.connectors.kinesis.domain.TelemetryServiceRequest;
+import com.unnivp.thingworx.connectors.kinesis.domain.TelemetryPayload;
 import com.unnivp.thingworx.connectors.kinesis.util.JSONUtil;
 
 @RunWith(SpringRunner.class)
@@ -23,8 +23,7 @@ public class IntegrationTest {
 	@Test
 	public void testKinesisConsumer_Success() {
 
-		kinesisMessageSink.consume(JSONUtil.getJsonString(new TelemetryServiceRequest()));
-
+		kinesisMessageSink.consume(JSONUtil.getJsonString(new TelemetryPayload()));
 	}
 	
 	@Test

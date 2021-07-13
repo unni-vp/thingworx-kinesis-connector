@@ -32,7 +32,7 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 
 	@Autowired
 	protected ThingworxPropertyConfig propertyConfig;
-	
+
 	protected String connectorName;
 
 	public WSTelemetryClient(ClientConfigurator clientConfigurator) throws Exception {
@@ -43,7 +43,7 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 	public String getConnectorName() {
 		return this.connectorName;
 	}
-	
+
 	public void recieveMessage(String requestString) {
 		// Override this method to specify the implementation
 	}
@@ -74,12 +74,10 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 		InfoTable result = null;
 		if (this.isConnected()) {
 			try {
-				logger.info("Calling service : " + propertyConfig.getTelemetryThing() + "."
-						+ propertyConfig.getTelemetryService() + " > " + message);
 				// A ValueCollection is used to specify a service's parameters
 				ValueCollection parameters = new ValueCollection();
 				JSONObject telemetryJSON = new JSONObject(message);
-				parameters.put("records", new JSONPrimitive(telemetryJSON));
+				parameters.put("payload", new JSONPrimitive(telemetryJSON));
 				result = this.invokeService(ThingworxEntityTypes.Things, propertyConfig.getTelemetryThing(),
 						propertyConfig.getTelemetryService(), parameters, propertyConfig.getTimeout());
 				logger.info("Completed service call : " + propertyConfig.getTelemetryThing() + "."
@@ -94,13 +92,15 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 		return result;
 	}
 
+	/**
+	 * Long-running thread for the WebSocket connector.
+	 * Performs period health checks to avoid termination due to inactivity.
+	 */
 	@Override
 	public void run() {
 
 		try {
-			connectorName = "WSConnector-" 
-					//+ ((this.getEndpoint().getName() != null) ? (this.getEndpoint().getName() + "-") : "");
-					+ UUID.randomUUID().toString().replace("-", "");
+			connectorName = "WSConnector-" + UUID.randomUUID().toString().replace("-", "");
 			this.bindThing(new TelemetryThing(connectorName, this));
 			this.start();
 			logger.info("WS Connector started succesfully : " + connectorName + ":" + this.isConnected());
@@ -122,17 +122,25 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 			}
 		}
 	}
-	
+
+	/**
+	 * The Remote Thing for the WebSocket connector. This connected thing will
+	 * appear under the Remote Things > Unbound section in the Monitoring > Status
+	 * pane of the ThingWorx Composer.
+	 * 
+	 * @author unnivp
+	 *
+	 */
 	public class TelemetryThing extends VirtualThing {
 
 		private static final long serialVersionUID = -2393731561648993129L;
-		
+
 		public TelemetryThing(String name, ConnectedThingClient client) throws Exception {
 
 			super(name, "WS Connector Thing", null, client);
 			this.initialize();
 		}
-		
+
 	}
 
 }
