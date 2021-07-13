@@ -44,10 +44,45 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 		return this.connectorName;
 	}
 
-	public void recieveMessage(String requestString) {
-		// Override this method to specify the implementation
-	}
+	/**
+	 * Invoke the ThingWorx telmetry service to process the telemetry payload.
+	 * 
+	 * @param message
+	 *            telemetry message
+	 * @return infotable object containing the service execution result
+	 */
+	@Async("TelemetryMessageExecutor")
+	public InfoTable invokeTelemetryService(String message) {
 
+		InfoTable result = null;
+		if (this.isConnected()) {
+			try {
+				// A ValueCollection is used to specify a service's parameters.
+				ValueCollection parameters = new ValueCollection();
+				JSONObject telemetryJSON = new JSONObject(message);
+				parameters.put("payload", new JSONPrimitive(telemetryJSON));
+
+				// Invoke the ThingWorx service to post the telemetry payload over websocket
+				// channel.
+				result = this.invokeService(ThingworxEntityTypes.Things, propertyConfig.getTelemetryThing(),
+						propertyConfig.getTelemetryService(), parameters, propertyConfig.getTimeout());
+
+				logger.info("Completed service call : " + propertyConfig.getTelemetryThing() + "."
+						+ propertyConfig.getTelemetryService() + " > " + result.getReturnValue());
+
+			} catch (Exception eProcessing) {
+				logger.error("Error invoking Telemetry service : ", eProcessing);
+			}
+		} else {
+			logger.info("Client is not connected while invoking service : " + propertyConfig.getTelemetryThing() + "."
+					+ propertyConfig.getTelemetryService());
+		}
+		return result;
+	}
+	
+	/**
+	 * Invoke the ThingWorx health service to perform health check.
+	 */
 	public void healthCheck() {
 
 		if (this.isConnected()) {
@@ -68,38 +103,15 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 		}
 	}
 
-	@Async("TelemetryMessageExecutor")
-	public InfoTable invokeTelemetryService(String message) {
-
-		InfoTable result = null;
-		if (this.isConnected()) {
-			try {
-				// A ValueCollection is used to specify a service's parameters
-				ValueCollection parameters = new ValueCollection();
-				JSONObject telemetryJSON = new JSONObject(message);
-				parameters.put("payload", new JSONPrimitive(telemetryJSON));
-				result = this.invokeService(ThingworxEntityTypes.Things, propertyConfig.getTelemetryThing(),
-						propertyConfig.getTelemetryService(), parameters, propertyConfig.getTimeout());
-				logger.info("Completed service call : " + propertyConfig.getTelemetryThing() + "."
-						+ propertyConfig.getTelemetryService() + " > " + result.getReturnValue());
-			} catch (Exception eProcessing) {
-				logger.error("Error invoking Telemetry service : ", eProcessing);
-			}
-		} else {
-			logger.info("Client is not connected while invoking service : " + propertyConfig.getTelemetryThing() + "."
-					+ propertyConfig.getTelemetryService());
-		}
-		return result;
-	}
-
 	/**
-	 * Long-running thread for the WebSocket connector.
-	 * Performs period health checks to avoid termination due to inactivity.
+	 * Long-running thread for the WebSocket connector. Performs period health
+	 * checks to avoid termination due to inactivity.
 	 */
 	@Override
 	public void run() {
 
 		try {
+			// Bind the Web socket connector to a ThingWorx Remote Thing.
 			connectorName = "WSConnector-" + UUID.randomUUID().toString().replace("-", "");
 			this.bindThing(new TelemetryThing(connectorName, this));
 			this.start();
@@ -117,6 +129,7 @@ public class WSTelemetryClient extends ConnectedThingClient implements Runnable 
 				logger.error("Unexpected exception", e);
 			}
 
+			// Perform health check at regular intervals.
 			if (this.isConnected() && propertyConfig.getHealthService() != null) {
 				this.healthCheck();
 			}
