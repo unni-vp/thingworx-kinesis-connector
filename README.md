@@ -22,6 +22,9 @@ Modify the 'application.yml' file before you launch the application. The below p
  - **healthThing** : The Thing containing the service for health check
  - **healthService** : The ThingWorx service that performs health check.
 
+**Note** : 
+A sample ThingWorx entity can be found in the 'entities' folder. The 'Thing' entity has sample services for telemetry processing and health check.
+
 ## Installation
 Use maven to compile and build project:
 ```bash
@@ -32,4 +35,6 @@ Run the spring-boot application:
 mvn spring-boot:run
 ```
 
-**Note :** A sample ThingWorx entity can be found in the 'entities' folder. The 'Thing' entity has sample services for telemetry processing and health check.
+##
+
+*Disclaimer: This is a proof-of -concept project, meant to demonstrate ThingWorx websocket based ingestion from AWS Kinesis. It would not be advisable to use this as is in a production environment. Ideally the internal JMS implementation for message queuing, should be replaced with an external queue implementation (AWS SQS, Kafka) to manage memory, scale and performance.*
